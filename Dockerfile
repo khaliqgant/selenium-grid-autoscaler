@@ -1,17 +1,9 @@
-# Start with a base image containing Java runtime
+FROM maven:3.6.3-adoptopenjdk-8 AS build
+COPY src /home/app/src
+COPY pom.xml /home/app
+RUN mvn -f pom.xml clean package -Dmaven.test.skip=true
+
 FROM adoptopenjdk/openjdk8:alpine-slim
+COPY --from=build /home/app/target/*.jar /usr/local/lib/grid-utils.jar
 
-# Add Maintainer Info
-LABEL maintainer="sahajamit@gmail.com"
-
-VOLUME /tmp
-
-# The application's jar file
-ARG JAR_FILE=target/*.jar
-
-COPY ${JAR_FILE} app/grid-utils.jar
-
-WORKDIR app
-
-# Run the jar file
-ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom","-jar","grid-utils.jar"]
+ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom","-jar","/usr/local/lib/grid-utils.jar"]
