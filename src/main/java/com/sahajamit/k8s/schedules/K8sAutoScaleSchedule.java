@@ -26,13 +26,14 @@ public class K8sAutoScaleSchedule {
         }
     }
 
-    @Scheduled(fixedDelayString = "${grid_scale_down_check_frequency_in_sec:10}000", initialDelay = 5000)
+    @Scheduled(fixedDelayString = "${grid_scale_down_check_frequency_in_sec:10}000", initialDelay = 600000)
     public synchronized void checkAndAutoScaleDown() {
         try {
             podScalingService.adjustScaleDown(service.getStatus());
         } catch (Exception e) {
             logger.error("Error in running checkAndAutoScaleDown scheduler: {}", e);
         }
+    }
 
     @Scheduled(cron = "${grid_daily_cleanup_cron}")
     public synchronized void restartAllNodes() {
