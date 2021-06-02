@@ -17,7 +17,7 @@ public class K8sAutoScaleSchedule {
     @Autowired
     private PodScalingService podScalingService;
 
-    @Scheduled(fixedDelayString = "${grid_scale_up_check_frequency_in_sec:10}000", initialDelay = 5000)
+    @Scheduled(fixedDelayString = "${grid_scale_up_check_frequency_in_sec:10}000", initialDelay = 300000)
     public synchronized void checkAndAutoScaleUp() {
         try {
             podScalingService.adjustScaleUp(service.getStatus());
