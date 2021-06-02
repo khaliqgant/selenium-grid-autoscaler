@@ -17,14 +17,22 @@ public class K8sAutoScaleSchedule {
     @Autowired
     private PodScalingService podScalingService;
 
-    @Scheduled(fixedDelayString = "${grid_scale_check_frequency_in_sec:10}000", initialDelay = 5000)
-    public synchronized void checkAndAutoScale() {
+    @Scheduled(fixedDelayString = "${grid_scale_up_check_frequency_in_sec:10}000", initialDelay = 5000)
+    public synchronized void checkAndAutoScaleUp() {
         try {
-            podScalingService.adjustScale(service.getStatus());
+            podScalingService.adjustScaleUp(service.getStatus());
         } catch (Exception e) {
-            logger.error("Error in running checkAndAutoScale scheduler: {}", e);
+            logger.error("Error in running checkAndAutoScaleUp scheduler: {}", e);
         }
     }
+
+    @Scheduled(fixedDelayString = "${grid_scale_down_check_frequency_in_sec:10}000", initialDelay = 5000)
+    public synchronized void checkAndAutoScaleDown() {
+        try {
+            podScalingService.adjustScaleDown(service.getStatus());
+        } catch (Exception e) {
+            logger.error("Error in running checkAndAutoScaleDown scheduler: {}", e);
+        }
 
     @Scheduled(cron = "${grid_daily_cleanup_cron}")
     public synchronized void restartAllNodes() {

@@ -114,8 +114,8 @@ public class PodScalingService {
             waitForScaleToHappen(scaledValue);
     }
 
-    public void adjustScale(GridConsoleStatus gridStatus) throws IOException, InterruptedException {
-        logger.debug("Let's check if auto-scaling is required...");
+    public void adjustScaleUp(GridConsoleStatus gridStatus) throws IOException, InterruptedException {
+        logger.debug("Let's check if auto-scaling up is required...");
         int totalRunningNodes = gridStatus.getAvailableNodesCount() + gridStatus.getBusyNodesCount();
         int queuedRequests = gridStatus.getWaitingRequestsCount();
         int currentScale = getScale();
@@ -126,7 +126,20 @@ public class PodScalingService {
         } else if (totalRunningNodes < minScaleLimit) {
             requiredScale = minScaleLimit;
             logger.info("Scale up is required. Current scale: {} and required scale: {}", currentScale, requiredScale);
-        } else if (totalRunningNodes > minScaleLimit && gridStatus.getBusyNodesCount() == 0) {
+        } else {
+            logger.debug("No scaling is required..");
+            return;
+        }
+        updateScale(requiredScale);
+    }
+
+    public void adjustScaleDown(GridConsoleStatus gridStatus) throws IOException, InterruptedException {
+        logger.debug("Let's check if auto-scaling down is required...");
+        int totalRunningNodes = gridStatus.getAvailableNodesCount() + gridStatus.getBusyNodesCount();
+        int queuedRequests = gridStatus.getWaitingRequestsCount();
+        int currentScale = getScale();
+        int requiredScale;
+        if (totalRunningNodes > minScaleLimit && gridStatus.getBusyNodesCount() == 0) {
             logger.info("Scale down is required. Current available scale: {} and minimum required scale: {}", currentScale, minScaleLimit);
             requiredScale = minScaleLimit;
         } else {
